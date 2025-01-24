@@ -88,6 +88,21 @@ h1 {
   font-size: xx-large;
 }
 
+h2 a {
+  font-size: x-large;
+  color: var(--secondary-background);
+  text-decoration:underline var(--secondary-accent);
+}
+
+.namePrice span {
+  color: var(--primary-background);
+  background-color: var(--secondary-background);
+  border-radius: 2px;
+  font-weight: bold;
+  box-shadow: var(--secondary-accent) 2px 2px 2px 0;
+  padding: 4px;
+}
+
 #vehicle-info {
   grid-column: 1/3;
   grid-row: 1/2;
