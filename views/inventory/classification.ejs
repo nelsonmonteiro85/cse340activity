@@ -1,19 +1,13 @@
-<!-- /* **************************************
-The Content Heading
-* ************************************ */ -->
-<% if (title) { %>
-    <h1>
-        <%= title %>
-    </h1>
+<main class="classification-container">
+    <!-- Content Heading -->
+    <% if (title) { %>
+        <h1 class="classification-title"><%= title %></h1>
     <% } else { res.redirect('/') } %>
 
-<!-- /* **************************************
-A Message Block
-* ************************************ */ -->
-<%# messages() %>
+    <!-- Optional Message Block -->
+    <%# messages() %>
 
-<!-- /* **************************************
-The Inventory Items Display
-* ************************************ */ -->
-<%- grid %>
-
+    <section class="vehicle-grid">
+        <%- grid %>
+    </section>
+</main>

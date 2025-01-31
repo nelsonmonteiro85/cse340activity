@@ -1,0 +1,23 @@
+<main class="vehicle-detail-container">
+    <h1 class="vehicle-title"><%= title %></h1>
+
+    <div class="vehicle-detail">
+        <!-- Vehicle Image Section -->
+        <div class="vehicle-image">
+            <img src="<%= vehicle.inv_image %>" alt="Image of <%= vehicle.inv_make %> <%= vehicle.inv_model %>" class="vehicle-img">
+        </div>
+
+        <!-- Vehicle Information Section -->
+        <div class="vehicle-info">
+            <h2 class="vehicle-info-title">Vehicle Information</h2>
+            <p><strong>Make:</strong> <span class="make-model"><%= vehicle.inv_make %></span></p>
+            <p><strong>Model:</strong> <span class="make-model"><%= vehicle.inv_model %></span></p>
+            <p><strong>Year:</strong> <%= vehicle.inv_year %></p>
+            <p><strong>Price:</strong> <span class="price-value"><%= new Intl.NumberFormat('en-US').format(vehicle.inv_price) %></span></p>
+            <p><strong>Mileage:</strong> <%= new Intl.NumberFormat('en-US').format(vehicle.inv_miles) %> miles</p>
+            <p><strong>Description:</strong> <%= vehicle.inv_description %></p>
+        </div>
+    </div>
+
+    <button class="back-btn" onclick="window.history.back();">Go Back</button>
+</main>

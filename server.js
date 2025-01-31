@@ -8,6 +8,7 @@
 const express = require("express")
 const expressLayouts = require("express-ejs-layouts")
 const env = require("dotenv").config()
+const path = require('path');
 const app = express()
 const static = require("./routes/static")
 const baseController = require("./controllers/baseController")
@@ -20,6 +21,11 @@ const utilities = require("./utilities/index") // Added utilities import
 app.set("view engine", "ejs")
 app.use(expressLayouts)
 app.set("layout", "./layouts/layout") // not at views root
+
+/* ***********************
+ * Serve Static Files (CSS, JS, Images)
+ *************************/
+app.use(express.static(path.join(__dirname, 'public')));
 
 /* ***********************
 * Index route
