@@ -39,6 +39,9 @@ app.use(static)
 // Inventory routes
 app.use("/inv", inventoryRoute)
 
+const errorRoute = require("./routes/errorRoute"); // Task 3 intentional error
+app.use("/", errorRoute);
+
 // File Not Found Route - must be last route in list
 app.use(async (req, res, next) => {
   next({
