@@ -54,6 +54,126 @@ body {
   color: var(--secondary-background);
 }
 
+/*******************************Login form ****************************/
+/**********************************************************************/
+#login, #register {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+}
+
+#login .form-title, #register .form-title {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+#login form, #register form {
+  background-color: var(--primary-background);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: var(--secondary-accent) 0 1px 2px 2px;
+  width: 300px;
+  text-align: center;
+}
+
+#login label, #register label {
+  text-align: left;
+  font-size: 1rem;
+  margin-bottom: 5px;
+  display: block;
+}
+
+#login input, #register input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 2px solid var(--main-accent);
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
+#login input:focus, #register input:focus {
+  border-color: var(--secondary-accent);
+  outline: none;
+}
+
+#login .login-btn, #register .register-btn {
+  font-weight: bold;
+  background-color: var(--main-accent);
+  color: var(--primary-background);
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+}
+
+#login .login-btn:hover, #register .register-btn:hover {
+  font-weight: bold;
+  color: var(--primary-background);
+  background-color: var(--secondary-accent);
+}
+
+#login .signup-link, #register .login-link { 
+  color: var(--secondary-background);
+  text-decoration: underline var(--secondary-accent);
+  text-decoration-thickness: 1px;
+  text-shadow: 2px 2px 5px var(--secondary-accent);
+  transition: text-shadow 0.3s ease-in-out;
+}
+
+#login .signup-link:hover, #register .login-link:hover {
+  text-shadow: 4px 4px 10px var(--main-accent);
+}
+
+.password-container {
+  position: relative;
+}
+
+.password-tooltip {
+  display: none;
+  position: absolute;
+  bottom: -30px;
+  left: 0;
+  font-size: 0.9rem;
+  color: #555;
+  background-color: #f8f8f8;
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+  width: 100%;
+  text-align: center;
+}
+
+.password-container:hover .password-tooltip {
+  display: block;
+}
+
+.password-container input {
+  width: 100%;
+  padding: 10px 30px 10px 10px;
+  margin-bottom: 15px;
+  border: 2px solid var(--main-accent);
+  border-radius: 10px;
+  font-size: 1rem;
+  position: relative;
+}
+
+#toggle-password {
+  font-size: 1.5rem;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 35%;
+  transform: translateY(-50%);
+}
+
+.password-container input:hover {
+  border-color: var(--secondary-accent);
+}
+
 /************************** Navigation ********************************/
 /**********************************************************************/
 nav {
@@ -92,6 +212,22 @@ nav ul li a {
 
 h1 {
   font-size: xx-large;
+}
+
+#messages {
+  color: red;
+  font-weight: bold;
+}
+
+.flash-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  margin: 10px auto;
+  width: 90%;
+  text-align: center;
+  border-radius: 5px;
+  border: 1px solid #f5c6cb;
 }
 
 h2 a {

@@ -7,6 +7,12 @@
         <%- include('../partials/header') %>
         <%- include('../partials/navigation') %>
 
+        <% if (messages && messages.notice) { %>
+            <div class="flash-message">
+                <%= messages.notice %>
+            </div>
+        <% } %>
+
         <main id="home">
             <%- body %>
         </main>

@@ -1,0 +1,42 @@
+<section id="login">
+    <h1 class="form-title">Login</h1>
+
+    <% if (messages && messages.notice && messages.notice.length > 0) { %>
+        <div class="flash-message"><%= messages.notice %></div>
+    <% } %>
+
+    <form action="/account/login" method="POST" class="login-form">
+        <label for="account_email">Email:</label>
+        <input type="email" id="account_email" name="account_email" required><br>
+
+        <label for="account_password">Password:</label>
+        <div class="password-container">
+            <input type="password" id="account_password" name="account_password" required 
+                   pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$"
+                   title="Password must be at least 12 characters long, contain at least one uppercase letter, one number, and one special character.">
+            <span id="toggle-password" onclick="togglePassword()">😐</span>
+        </div>
+
+        <!-- Password requirements tooltip (hidden by default) -->
+        <small class="password-tooltip">Password must be at least 12 characters long, contain at least one uppercase letter, one number, and one special character (@$!%*?&).</small><br>
+
+        <button type="submit" class="login-btn">Login</button>
+        <p>No account? <a href="/account/register" class="signup-link">Sign-up</a></p>
+    </form>
+</section>
+
+<script>
+    // Function to toggle password visibility
+    function togglePassword() {
+        var passwordField = document.getElementById("account_password");
+        var passwordIcon = document.getElementById("toggle-password");
+
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            passwordIcon.innerHTML = "😑";
+        } else {
+            passwordField.type = "password";
+            passwordIcon.innerHTML = "😐";
+        }
+    }
+</script>
