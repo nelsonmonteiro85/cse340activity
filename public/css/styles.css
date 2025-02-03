@@ -43,8 +43,10 @@ body {
 }
 
 .siteName a {
-  text-decoration: none;  /* Remove underline */
-  color: var(--secondary-background);  /* Change text color */
+  text-decoration: none;
+  /* Remove underline */
+  color: var(--secondary-background);
+  /* Change text color */
 }
 
 #tools a {
@@ -95,7 +97,7 @@ h1 {
 h2 a {
   font-size: x-large;
   color: var(--secondary-background);
-  text-decoration:underline var(--secondary-accent);
+  text-decoration: underline var(--secondary-accent);
   text-decoration-thickness: 2px;
 }
 
@@ -156,7 +158,7 @@ h2 a {
 /*************************** Vehicle Image ***************************/
 /**********************************************************************/
 #featured-vehicle {
-  grid-column:1/7;
+  grid-column: 1/7;
   text-align: center;
   margin: 1rem 0;
 }
@@ -300,7 +302,8 @@ li {
   align-items: center;
   width: 350px;
   border-radius: 10px;
-  box-shadow: var(--main-accent) 0 2px 2px 2px;;
+  box-shadow: var(--main-accent) 0 2px 2px 2px;
+  ;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   padding: 10px;
@@ -374,10 +377,10 @@ li {
 .make-model {
   font-size: large;
   color: var(--secondary-background);
-  text-decoration:underline var(--secondary-accent);
+  text-decoration: underline var(--secondary-accent);
   text-decoration-thickness: 2px;
-  }
-  
+}
+
 .price-value {
   color: var(--primary-background);
   background-color: var(--secondary-background);
@@ -387,11 +390,11 @@ li {
   padding: 4px;
   display: inline-block;
   margin: 0;
-  }
+}
 
 .back-btn {
   display: inline-block;
-  background-color:var(--main-accent);
+  background-color: var(--main-accent);
   color: var(--primary-background);
   padding: 10px 10px;
   text-decoration: none;
@@ -409,9 +412,9 @@ li {
 @media only screen and (min-width: 768px) {
   body {
     background-image: linear-gradient(45deg, #000 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #000 75%),
-    linear-gradient(45deg, transparent 75%, #000 75%),
-    linear-gradient(45deg, #000 25%, #fff 25%);
+      linear-gradient(45deg, transparent 75%, #000 75%),
+      linear-gradient(45deg, transparent 75%, #000 75%),
+      linear-gradient(45deg, #000 25%, #fff 25%);
     background-size: 100px 100px;
     background-position: 0 0, 0 0, -50px -50px, 50px 50px;
   }
@@ -429,19 +432,43 @@ li {
 /************** For smaller devices (Mobile View) *********************/
 /**********************************************************************/
 @media only screen and (max-width: 767px) {
+
+  html,
   body {
     width: 100%;
-    margin: 10px;
+    margin: 0;
+    padding: 0;
+    /* overflow-x: hidden; */
+  }
+
+  * {
+    /* outline: 1px solid red; */
+  }
+
+  #wrapper {
+    width: 100%;
+    max-width: 100vw;
+    margin: 0 auto;
     padding: 0;
     overflow-x: hidden;
   }
-  
+
+  nav ul {
+    flex-wrap: wrap;
+  }
+
   nav ul li {
     margin: 5px;
   }
 
+  #hero {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
   #hero-grid {
     grid-template-columns: 1fr;
+    width: 100%;
     margin: 0;
   }
 
@@ -451,7 +478,7 @@ li {
     font-weight: bold;
   }
 
-  #featured-vehicle img{
+  #featured-vehicle img {
     width: 100%;
   }
 
@@ -509,14 +536,55 @@ li {
   }
 
   .vehicle-grid {
-    grid-template-columns: 1fr;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .vehicle-info h3 {
     font-size: 1.2rem;
-}
+  }
 
-.vehicle-info p {
+  .vehicle-info p {
     font-size: 0.9rem;
+  }
+
+  .classification-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    justify-items: center;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 10px;
+  }
+
+  #inv-display {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    max-width: 100%;
+    gap: 0;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .vehicle-detail {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin: 20px;
+  }
+
+  .vehicle-detail-container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  footer {
+    padding-left: 10px;
   }
 }
