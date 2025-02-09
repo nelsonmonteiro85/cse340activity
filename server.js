@@ -43,6 +43,14 @@ app.use(function(req, res, next){
 })
 
 /* ***********************
+ * Middleware to Provide Navigation to All Views
+ *************************/
+app.use(async (req, res, next) => {
+  res.locals.nav = await utilities.getNav();
+  next();
+});
+
+/* ***********************
  * View Engine and Templates
  *************************/
 app.set("view engine", "ejs")
@@ -72,9 +80,6 @@ app.use("/", errorRoute);
 const accountRoute = require("./routes/accountRoute");
 app.use("/account", accountRoute);
 
-// Other routes
-app.use("/inv", inventoryRoute);
-
 // File Not Found Route - must be last route in list
 app.use(async (req, res, next) => {
   next({
@@ -82,6 +87,9 @@ app.use(async (req, res, next) => {
     message: "Sorry, we appear to have lost that page." // Custom error message
   })
 })
+
+app.use(static)
+app.use("/inv", inventoryRoute)
 
 /* ***********************
  * Express Error Handler

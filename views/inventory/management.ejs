@@ -1,0 +1,24 @@
+<section class="management-container">
+    <h1>Vehicle Management</h1>
+
+    <% if (messages && messages.success && messages.success.length > 0) { %>
+        <ul class="alert alert-success">
+            <% messages.success.forEach(function(message) { %>
+                <li><%= message %></li>
+            <% }); %>
+        </ul>
+    <% } %>
+
+    <% if (messages && messages.error && messages.error.length > 0) { %>
+        <ul class="alert alert-danger">
+            <% messages.error.forEach(function(message) { %>
+                <li><%= message %></li>
+            <% }); %>
+        </ul>
+    <% } %>
+
+    <div class="action-links">
+        <p><a href="/inv/add-classification" class="button-link">Add New Classification</a></p>
+        <p><a href="/inv/add-inventory" class="button-link">Add New Vehicle</a></p>
+    </div>
+</section>

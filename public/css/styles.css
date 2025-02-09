@@ -54,9 +54,9 @@ body {
   color: var(--secondary-background);
 }
 
-/*******************************Login form ****************************/
+/***********************************Forms******************************/
 /**********************************************************************/
-#login, #register {
+#login, #register, .management-container, .add-classification-container, .inventory-form {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -68,7 +68,7 @@ body {
   margin-bottom: 20px;
 }
 
-#login form, #register form {
+#login form, #register form,.management-container, .add-classification-container, .inventory-form{
   background-color: var(--primary-background);
   padding: 30px;
   border-radius: 10px;
@@ -77,14 +77,14 @@ body {
   text-align: center;
 }
 
-#login label, #register label {
+#login label, #register label, .management-container label, .add-classification-container label, .inventory-form label {
   text-align: left;
   font-size: 1rem;
   margin-bottom: 5px;
   display: block;
 }
 
-#login input, #register input {
+#login input, #register input, .management-container input, .add-classification-container input, .inventory-form input, .inventory-form select, .alert {
   width: 100%;
   padding: 10px;
   margin-bottom: 15px;
@@ -93,12 +93,12 @@ body {
   font-size: 1rem;
 }
 
-#login input:focus, #register input:focus {
+#login input:focus, #register input:focus, .management-container input:focus, .add-classification-container input:focus, .inventory-form input:focus {
   border-color: var(--secondary-accent);
   outline: none;
 }
 
-#login .login-btn, #register .register-btn {
+#login .login-btn, #register .register-btn, .management-container .form-btn, .add-classification-container .form-btn, .inventory-form .form-btn {
   font-weight: bold;
   background-color: var(--main-accent);
   color: var(--primary-background);
@@ -110,13 +110,13 @@ body {
   width: 100%;
 }
 
-#login .login-btn:hover, #register .register-btn:hover {
+#login .login-btn:hover, #register .register-btn:hover, .management-container .form-btn:hover, .add-classification-container .form-btn:hover, .inventory-form .form-btn:hover {
   font-weight: bold;
   color: var(--primary-background);
   background-color: var(--secondary-accent);
 }
 
-#login .signup-link, #register .login-link { 
+#login .signup-link, #register .login-link, .management-container .button-link, .add-classification-container .button-link, .inventory-form .button-link { 
   color: var(--secondary-background);
   text-decoration: underline var(--secondary-accent);
   text-decoration-thickness: 1px;
@@ -124,7 +124,7 @@ body {
   transition: text-shadow 0.3s ease-in-out;
 }
 
-#login .signup-link:hover, #register .login-link:hover {
+#login .signup-link:hover, #register .login-link:hover, .management-container .button-link:hover, .add-classification-container .button-link:hover, .inventory-form .button-link:hover {
   text-shadow: 4px 4px 10px var(--main-accent);
 }
 
@@ -172,6 +172,42 @@ body {
 
 .password-container input:hover {
   border-color: var(--secondary-accent);
+}
+
+.alert {
+  padding: 0;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  list-style: none;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Success message*/
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-success li {
+  margin-bottom: 5px;
+}
+
+/* Error message */
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.alert-danger li {
+  margin-bottom: 5px;
+}
+
+.alert:hover {
+  opacity: 0.9;
+  cursor: pointer;
 }
 
 /************************** Navigation ********************************/

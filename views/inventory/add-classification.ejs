@@ -1,0 +1,31 @@
+<section class="add-classification-container">
+    <h1>Add New Classification</h1>
+
+    <% if (messages && messages.error) { %>
+        <div class="alert alert-danger">
+            <%= messages.error %>
+        </div>
+    <% } %>
+
+    <form action="/inv/add-classification" method="POST" id="addClassificationForm">
+        <div class="form-group">
+            <label for="classification_name">Classification Name:</label>
+            <input type="text" name="classification_name" id="classification_name" required pattern="^[a-zA-Z0-9]+$" title="Name must be alphabetic characters only.">
+        </div>
+
+        <button type="submit" class="form-btn">Add Classification</button>
+    </form>
+
+    <p><a href="/inv/management" class="button-link">Back to Vehicle Management</a></p>
+
+    <script>
+        $(document).ready(function() {
+            $('#addClassificationForm').on('submit', function(e) {
+                if ($('#classification_name').val().trim() === "" || !$('#classification_name').val().match(/^[a-zA-Z0-9]+$/)) {
+                    alert('Classification name is required and must not contain spaces or special characters.');
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+</section>
