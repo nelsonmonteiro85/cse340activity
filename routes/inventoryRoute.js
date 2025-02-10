@@ -28,4 +28,11 @@ router.get("/add-inventory", invController.buildAddInventoryView);
 // Route to handle the form submission for adding a vehicle
 router.post("/add-inventory", invController.addInventory);
 
+// Error handling middleware for inventory routes
+router.use((err, req, res, next) => {
+    console.error("Inventory Route Error:", err);
+    req.flash("error", "An unexpected error occurred. Please try again.");
+    res.redirect("/inv/management");
+});
+
 module.exports = router;

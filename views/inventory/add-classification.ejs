@@ -10,7 +10,8 @@
     <form action="/inv/add-classification" method="POST" id="addClassificationForm">
         <div class="form-group">
             <label for="classification_name">Classification Name:</label>
-            <input type="text" name="classification_name" id="classification_name" required pattern="^[a-zA-Z0-9]+$" title="Name must be alphabetic characters only.">
+            <input type="text" name="classification_name" id="classification_name" required pattern="^[a-zA-Z0-9]+$" title="Name must be alphanumeric only.">
+            <span class="validation-message"></span>
         </div>
 
         <button type="submit" class="form-btn">Add Classification</button>

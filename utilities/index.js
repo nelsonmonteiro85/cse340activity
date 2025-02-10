@@ -13,7 +13,7 @@ Util.getNav = async function () {
     list += '<li><a href="/" title="Home page">Home</a></li>';
 
     // "New Car" link
-    list += '<li><a href="/inv/management" title="Manage Inventory">New Car</a></li>';
+    list += '<li><a href="/inv/management" title="Manage Inventory">Management</a></li>';
 
     // Dynamically add classifications
     data.forEach((row) => {

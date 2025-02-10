@@ -23,34 +23,49 @@
                 <% } %>
             </select>
         </div>
-        
+
         <div class="form-group">
             <label for="inv_make">Make:</label>
-            <input type="text" name="inv_make" id="inv_make" value="<%= formData.inv_make || '' %>" required>
+            <input type="text" name="inv_make" id="inv_make" value="<%= formData.inv_make || '' %>" 
+                required placeholder="Min 3 characters" minlength="3">
         </div>
-    
+
         <div class="form-group">
             <label for="inv_model">Model:</label>
-            <input type="text" name="inv_model" id="inv_model" value="<%= formData.inv_model || '' %>" required>
+            <input type="text" name="inv_model" id="inv_model" value="<%= formData.inv_model || '' %>" 
+                required placeholder="Min 3 characters" minlength="3">
         </div>
-    
+
+        <div class="form-group">
+            <label for="inv_description">Description:</label>
+            <textarea name="inv_description" id="inv_description" placeholder="Describe the vehicle (optional)"><%= formData.inv_description || '' %></textarea>
+        </div>
+        
         <div class="form-group">
             <label for="inv_year">Year:</label>
-            <input type="number" name="inv_year" id="inv_year" value="<%= formData.inv_year || '' %>" required>
+            <input type="number" name="inv_year" id="inv_year" value="<%= formData.inv_year || '' %>" 
+                required pattern="^\d{4}$" placeholder="4-digit year" min="1900" max="2099">
         </div>
-    
+
         <div class="form-group">
-            <label for="inv_price">Price:</label>
-            <input type="number" name="inv_price" id="inv_price" value="<%= formData.inv_price || '' %>" required>
+            <label for="inv_price">Price ($):</label>
+            <input type="text" name="inv_price" id="inv_price" value="<%= formData.inv_price || '' %>" 
+                required pattern="^\d+(\.\d{1,2})?$" placeholder="Decimal or Integer">
         </div>
-    
+
+        <div class="form-group">
+            <label for="inv_miles">Miles:</label>
+            <input type="text" name="inv_miles" id="inv_miles" value="<%= formData.inv_miles || '' %>" 
+                required pattern="^\d+$" placeholder="Digits only">
+        </div>
+
         <div class="form-group">
             <label for="inv_image">Image (Optional):</label>
             <input type="file" name="inv_image" id="inv_image">
         </div>
-    
+
         <button type="submit" class="form-btn">Add Vehicle</button>
     </form>
-    
+
     <p><a href="/inv/management" class="button-link">Back to Vehicle Management</a></p>
 </section>
