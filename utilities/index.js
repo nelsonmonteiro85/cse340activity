@@ -16,7 +16,7 @@ Util.getNav = async function () {
     list += '<li><a href="/inv/management" title="Manage Inventory">New Car</a></li>';
 
     // Dynamically add classifications
-    data.rows.forEach((row) => {
+    data.forEach((row) => {
       list += "<li>";
       list +=
         '<a href="/inv/type/' +
@@ -94,7 +94,8 @@ Util.buildDetailView = async function (vehicle) {
  **************************************** */
 Util.buildClassificationList = async function (classification_id = null) {
   try {
-    let data = await invModel.getClassifications();
+    let data = await invModel.getClassifications(); // Ensure this returns classifications
+    console.log("DEBUG: data =", data); // Check the data being returned
     let classificationList = `
       <select name="classification_id" id="classificationList" required>
         <option value="">Choose a Classification</option>`;
@@ -112,7 +113,7 @@ Util.buildClassificationList = async function (classification_id = null) {
     console.error("Error in buildClassificationList:", err);
     return `<select name="classification_id" id="classificationList" required>
       <option value="">Choose a Classification</option>
-    </select>`; // Fallback empty select list
+    </select>`;
   }
 };
 

@@ -70,23 +70,23 @@ invCont.addClassification = async function (req, res, next) {
 
   // Server-side validation
   if (!classification_name || !classification_name.match(/^[a-zA-Z0-9]+$/)) {
-      req.flash('error', 'Classification name is required and must not contain spaces or special characters.');
-      return res.redirect('/inv/add-classification'); // Redirect back to form on error
+    req.flash('error', 'Classification name is required and must not contain spaces or special characters.');
+    return res.redirect('/inv/add-classification'); // Redirect back to form on error
   }
 
   try {
-      await invModel.addClassification(classification_name);
-      req.flash('success', 'Classification added successfully!');
+    await invModel.addClassification(classification_name);
+    req.flash('success', 'Classification added successfully!');
 
-      // Refresh Navigation (Important!)
-      const nav = await utilities.getNav(); // Rebuild navigation
-      res.locals.nav = nav; // Update res.locals to make the new nav available
+    // Refresh Navigation (Important!)
+    const nav = await utilities.getNav(); // Rebuild navigation
+    res.locals.nav = nav; // Update res.locals to make the new nav available
 
-      res.redirect('/inv/management'); // Redirect to management view
+    res.redirect('/inv/management'); // Redirect to management view
   } catch (error) {
-      console.error(error);
-      req.flash('error', 'Error adding classification.');
-      res.redirect('/inv/add-classification'); // Redirect back to form on error
+    console.error(error);
+    req.flash('error', 'Error adding classification.');
+    res.redirect('/inv/add-classification'); // Redirect back to form on error
   }
 };
 
@@ -95,18 +95,19 @@ invCont.addClassification = async function (req, res, next) {
  * ************************** */
 invCont.buildAddInventoryView = async function (req, res, next) {
   try {
-    // Retrieve classification list from the database or model
-    const classificationList = await utilities.buildClassificationList(); 
+    // Fetch classifications from the database
+    const classificationList = await invModel.getClassifications();  // Fetch classification list as an array
 
-    console.log("DEBUG: classificationList =", classificationList); // Log to see if classifications are fetched correctly
+    console.log("DEBUG: classificationList = ", classificationList);  // Debug to check the array data
 
-    const nav = await utilities.getNav();
+    // Render the add-inventory view and pass the classification list as an array
     res.render("inventory/add-inventory", {
       title: "Add New Vehicle to Inventory",
-      classificationList, // Ensure classificationList is being passed here
-      formData: req.body || {},
-      nav
+      classificationList: classificationList,  // Pass the classification list as an array
+      formData: req.body || {},  // Form data to keep inputs filled if needed
+      nav: await utilities.getNav(),  // For navigation
     });
+    
   } catch (error) {
     console.error("Error in buildAddInventoryView:", error);
     next(error);
@@ -121,21 +122,21 @@ invCont.addInventory = async function (req, res, next) {
 
   // Server-side Validation
   if (!inv_make || !inv_model || !inv_year || !inv_price || !classification_id || isNaN(inv_year) || isNaN(inv_price) || inv_price < 0) {
-      req.flash('error', 'All fields are required and must be valid.');
-      return res.redirect('/inv/add-inventory');
+    req.flash('error', 'All fields are required and must be valid.');
+    return res.redirect('/inv/add-inventory');
   }
 
   try {
-      // Handle image upload with multer here
+    // Handle image upload with multer here
 
-      const newInventory = { inv_make, inv_model, inv_year, inv_price, classification_id, /* ... other data */ };
-      await invModel.addInventory(newInventory);
-      req.flash('success', 'Vehicle added successfully!');
-      res.redirect('/inv/management'); // Redirect after successful insert
+    const newInventory = { inv_make, inv_model, inv_year, inv_price, classification_id, /* ... other data */ };
+    await invModel.addInventory(newInventory);
+    req.flash('success', 'Vehicle added successfully!');
+    res.redirect('/inv/management'); // Redirect after successful insert
   } catch (error) {
-      console.error("Error adding inventory:", error);
-      req.flash('error', 'Error adding vehicle. Please check your inputs.');
-      res.redirect('/inv/add-inventory'); // Redirect back to form on error
+    console.error("Error adding inventory:", error);
+    req.flash('error', 'Error adding vehicle. Please check your inputs.');
+    res.redirect('/inv/add-inventory'); // Redirect back to form on error
   }
 };
 

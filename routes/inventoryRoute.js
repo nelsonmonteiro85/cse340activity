@@ -9,7 +9,7 @@ router.get("/type/:classificationId", invController.buildByClassificationId);
 router.get("/detail/:invId", invController.buildByInvId);
 
 // Route to build inventory management view (for Task 1)
-router.get("/management", invController.buildManagementView); // ✅ Fixed!
+router.get("/management", invController.buildManagementView);
 
 // Route to display the add classification form (Task 2)
 router.get("/add-classification", (req, res) => {
