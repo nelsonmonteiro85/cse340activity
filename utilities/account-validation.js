@@ -53,7 +53,27 @@ validate.registrationRules = () => {
 };
 
 /*  **********************************
- *  Check data and return errors or continue to registration
+ *  Login Data Validation Rules  ✅ (Added)
+ * ********************************* */
+validate.loginRules = () => {
+  return [
+    body("account_email")
+      .trim()
+      .escape()
+      .notEmpty()
+      .isEmail()
+      .normalizeEmail()
+      .withMessage("Please enter a valid email address."),
+
+    body("account_password")
+      .trim()
+      .notEmpty()
+      .withMessage("Password is required."),
+  ];
+};
+
+/*  **********************************
+ *  Check registration data
  * ********************************* */
 validate.checkRegistrationData = async (req, res, next) => {
   const { account_firstname, account_lastname, account_email } = req.body;
@@ -70,6 +90,27 @@ validate.checkRegistrationData = async (req, res, next) => {
       account_firstname,  // Maintain stickiness
       account_lastname,   // Maintain stickiness
       account_email,      // Maintain stickiness
+    });
+  }
+  next();
+};
+
+/*  **********************************
+ *  Check login data  ✅ (Added)
+ * ********************************* */
+validate.checkLoginData = async (req, res, next) => {
+  const { account_email } = req.body;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    const messages = errors.array().map(error => error.msg);
+    let nav = await utilities.getNav();
+
+    return res.render("account/login", {
+      title: "Login",
+      nav,
+      errors: messages,  // Send error messages to the view
+      account_email,     // Maintain email input stickiness
     });
   }
   next();

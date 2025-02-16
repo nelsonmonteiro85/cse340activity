@@ -64,9 +64,33 @@ async function addClassification(classification_name) {
   }
 }
 
+/* ***************************
+ *  Delete a classification by ID
+ * ************************** */
+async function deleteClassification(classification_id) {
+  try {
+    const result = await pool.query(
+      "DELETE FROM public.classification WHERE classification_id = $1 RETURNING classification_name",
+      [classification_id]
+    );
+
+    // If no rows were affected, it means the classification doesn't exist
+    if (result.rowCount === 0) {
+      throw new Error('Classification not found');
+    }
+
+    // Return the name of the deleted classification
+    return result.rows[0];
+  } catch (error) {
+    console.error("deleteClassification error: " + error);
+    throw error; // Propagate the error to be handled by the controller
+  }
+}
+
 module.exports = {
   getClassifications,
   getInventoryByClassificationId,
   getInventoryById,
   addClassification,
+  deleteClassification,
 };

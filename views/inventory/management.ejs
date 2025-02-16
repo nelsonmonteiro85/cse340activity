@@ -21,4 +21,45 @@
         <p><a href="/inv/add-classification" class="button-link">Add New Classification</a></p>
         <p><a href="/inv/add-inventory" class="button-link">Add New Vehicle</a></p>
     </div>
+
+    <!-- Manage Inventory Section -->
+    <h2>Manage Inventory</h2>
+    <p>Select a classification from the list to see the items belonging to that classification.</p>
+
+    <!-- Classification List -->
+    <div>
+        <select id="classificationSelect" class="form-control">
+            <option value="">-- Select Classification --</option>
+            <% classifications.forEach(function(classification) { %>
+                <option value="<%= classification.classification_id %>">
+                    <%= classification.classification_name %>
+                </option>
+            <% }); %>
+        </select>
+    </div>
+
+    <!-- Inventory Table Section -->
+    <div class="inventory-table-section">
+        <table id="inventoryDisplay" class="inventory-table">
+            <thead>
+                <tr>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Placeholder row until a classification is selected -->
+                <tr>
+                    <td colspan="3">Please select a classification to see vehicles.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>    
+
+    <!-- No JavaScript Message -->
+    <noscript>JavaScript must be enabled to use this page.</noscript>
 </section>
+
+<!-- Include JavaScript file for handling dynamic inventory display -->
+<script src="/js/inventory.js"></script>

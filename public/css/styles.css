@@ -229,6 +229,80 @@ input:required:valid {
   background-color: white;
 }
 
+/***********************************Inventory Table******************************/
+/**********************************************************************/
+.inventory-table-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.inventory-table {
+  width: 100%;
+  margin-bottom: 5px;
+  border-collapse: collapse;
+  border: 2px solid var(--main-accent);
+  border-radius: 10px;
+  box-shadow: var(--secondary-accent) 0 1px 2px 2px;
+}
+
+.inventory-table th {
+  padding: 5px;
+  text-align: center;
+  vertical-align: middle;
+  background-color: var(--secondary-accent);
+  color: var(--primary-background);
+  font-size: 1rem;
+}
+
+.inventory-table td { 
+  font-size: small;
+  padding: 10px 5px;
+  text-align: center;
+}
+
+.inventory-table td a {
+  text-decoration: none;
+  padding: 5px 10px;
+  background-color: var(--main-accent);
+  color: var(--primary-background);
+  border-radius: 5px;
+  margin: 0 4px;
+  font-size: small;
+  display: inline-block;
+}
+
+.inventory-table td a:hover {
+  background-color: var(--secondary-accent);
+}
+
+.inventory-table td a.delete-link {
+  background-color: var(--secondary-accent);
+  color: var(--secondary-background);
+}
+
+.inventory-table td a.delete-link:hover {
+  background-color: var(--secondary-background);
+  color: var(--primary-background);
+}
+
+.inventory-table td a.modify-link {
+  background-color: var(--main-accent);
+}
+
+.inventory-table td a.modify-link:hover {
+  background-color: var(--secondary-background);
+  color: var(--primary-background);
+}
+
+.inventory-table td .vehicle-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+}
+
 /************************** Navigation ********************************/
 /**********************************************************************/
 nav {

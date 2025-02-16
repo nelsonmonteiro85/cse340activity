@@ -1,6 +1,10 @@
 <section id="hero">
     <h1>Welcome to CSE Motors!</h1>
-    <%- messages() %>
+    <% if (messages && messages.notice) { %>
+        <div class="flash-message">
+            <%= messages.notice %>
+        </div>
+    <% } %>    
     <section id="hero-grid">
         <section id="vehicle-info">
             <h3>DMC Delorean</h3>

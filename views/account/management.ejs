@@ -1,0 +1,15 @@
+<% include("../partials/header.ejs") %>
+
+<h1>You're logged in!</h1>
+
+<% if (Array.isArray(notice) && notice.length > 0) { %>
+  <div class="messages">
+    <% notice.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } else if (notice) { %>
+  <p><%= notice %></p> 
+<% } %>
+
+<% include("../partials/footer.ejs") %>
