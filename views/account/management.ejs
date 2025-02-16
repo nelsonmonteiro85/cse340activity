@@ -1,7 +1,17 @@
 <% include("../partials/header.ejs") %>
 
-<h1>You're logged in!</h1>
+<h1>Account Management</h1>
 
+<!-- Displaying User Information -->
+<% if (user) { %>
+  <h2>Welcome, <%= user.account_firstname %>!</h2>
+  <p>You are logged in.</p>
+  <a href="/account/edit">Edit account information</a>
+<% } else { %>
+  <p>You are not logged in. Please <a href="/account/login">login</a> first.</p>
+<% } %>
+
+<!-- Display Notices or Messages -->
 <% if (Array.isArray(notice) && notice.length > 0) { %>
   <div class="messages">
     <% notice.forEach(msg => { %>
@@ -9,7 +19,7 @@
     <% }) %>
   </div>
 <% } else if (notice) { %>
-  <p><%= notice %></p> 
+  <p><%= notice %></p>
 <% } %>
 
 <% include("../partials/footer.ejs") %>

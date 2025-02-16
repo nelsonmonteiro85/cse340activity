@@ -2,6 +2,7 @@
  * This server.js file is the primary file of the 
  * application. It is used to control the project.
  *******************************************/
+
 /* ***********************
  * Require Statements
  *************************/
@@ -22,12 +23,15 @@ const flash = require("connect-flash");
 const invCont = require('./controllers/invController');  // Correct import
 
 /* ***********************
- * Middleware
- ************************/
-app.use(flash());
+ * Middleware (Order Matters!)
+ *************************/
+app.use(bodyParser.json()); // Parses JSON data
+app.use(bodyParser.urlencoded({ extended: true })); // Parses URL-encoded form data
+
 app.use(cookieParser());
 app.use(utilities.checkJWTToken);
 
+// Express Session Middleware (Must come before flash)
 app.use(
   session({
     store: new (require('connect-pg-simple')(session))({
@@ -41,15 +45,13 @@ app.use(
   })
 );
 
-app.use(bodyParser.json()); // For parsing JSON data
-app.use(bodyParser.urlencoded({ extended: true })); // For parsing URL-encoded data
+// Now add flash middleware AFTER session
+app.use(flash());
 
-// Express Flash Middleware
-app.use(require('connect-flash')());
-
-// Ensure `messages` are available to all views
-app.use(function(req, res, next){
-  res.locals.messages = req.flash(); // Set flash messages to res.locals
+/* Ensure flash messages persist across views */
+app.use((req, res, next) => {
+  res.locals.messages = req.session.flash || {}; // Store flash messages
+  delete req.session.flash; // Clear flash messages after use
   next();
 });
 
@@ -61,12 +63,17 @@ app.use(async (req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  next();
+});
+
 /* ***********************
  * View Engine and Templates
  *************************/
 app.set("view engine", "ejs");
 app.use(expressLayouts);
-app.set("layout", "./layouts/layout"); // not at views root
+app.set("layout", "./layouts/layout"); // Not at views root
 
 /* ***********************
  * Serve Static Files (CSS, JS, Images)
@@ -74,8 +81,8 @@ app.set("layout", "./layouts/layout"); // not at views root
 app.use(express.static(path.join(__dirname, "public")));
 
 /* ***********************
-* Index route
-*************************/
+ * Index route
+ *************************/
 app.get("/", utilities.handleErrors(baseController.buildHome)); // Wrapped in higher-order function
 
 /* ***********************

@@ -34,7 +34,7 @@ router.post(
 
       // Set a success flash message after account creation
       req.flash('notice', 'Account successfully created!');
-      res.redirect('/account/'); // Redirect to the account management page after successful registration
+      res.redirect('/account/login'); // Redirect to the login page after successful registration
     } catch (error) {
       console.error(error);
       req.flash('error', 'Something went wrong, please try again.');
@@ -48,10 +48,43 @@ router.post(
   "/login",
   validate.loginRules(),
   validate.checkLoginData,
-  utilities.handleErrors(accountController.accountLogin)
+  utilities.handleErrors(async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+      const result = await pool.query('SELECT * FROM account WHERE account_email = $1', [email]);
+
+      if (result.rows.length === 0) {
+        req.flash('error', 'Invalid email or password');
+        return res.redirect('/account/login');
+      }
+
+      const user = result.rows[0];
+
+      // Password validation (make sure to hash passwords in real implementation)
+      if (user.account_password !== password) {
+        req.flash('error', 'Invalid email or password');
+        return res.redirect('/account/login');
+      }
+
+      // Login successful - store user session
+      req.session.user = {
+        id: user.account_id,
+        email: user.account_email,
+        username: user.account_username,
+      };
+
+      req.flash('notice', 'Logged in successfully');
+      res.redirect('/account'); // Redirect to account management page after successful login
+    } catch (error) {
+      console.error(error);
+      req.flash('error', 'Something went wrong, please try again.');
+      res.redirect('/account/login');
+    }
+  })
 );
 
-// ✅ UPDATED: Route to build the account management view ("/account/") with checkLogin middleware
+// Route to build the account management view ("/account/") with checkLogin middleware
 router.get("/", utilities.checkLogin, utilities.handleErrors(accountController.buildAccountManagement));
 
 module.exports = router;

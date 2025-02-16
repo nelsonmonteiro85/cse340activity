@@ -10,11 +10,11 @@ const accountModel = require('../models/account-model');
 async function accountLogin(req, res) {
   let nav = await utilities.getNav();
   const { account_email, account_password } = req.body;
-  
+
   try {
-    // Get account details by email
     const accountData = await accountModel.getAccountByEmail(account_email);
-    
+    console.log("Account Data Retrieved:", accountData);  // Debugging log
+
     if (!accountData) {
       req.flash("notice", "Please check your credentials and try again.");
       return res.status(400).render("account/login", {
@@ -22,13 +22,14 @@ async function accountLogin(req, res) {
         nav,
         errors: null,
         account_email,
+        messages: req.flash("notice"),
       });
     }
 
-    // Compare password hashes
     if (await bcrypt.compare(account_password, accountData.account_password)) {
-      delete accountData.account_password;  // Remove password from account data
+      // Login successful, generate JWT token and set cookies
       const accessToken = jwt.sign(accountData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+      console.log("Generated Access Token:", accessToken);  // Debugging log
 
       // Set token as a cookie
       const cookieOptions = process.env.NODE_ENV === 'development' ? 
@@ -36,18 +37,20 @@ async function accountLogin(req, res) {
         { httpOnly: true, secure: true, maxAge: 3600 * 1000 };
 
       res.cookie("jwt", accessToken, cookieOptions);
-      return res.redirect("/account/");
+      console.log('Redirecting to account management...');
+      return res.redirect("/account/management");  // Ensure this route is correct for Account Management page
     } else {
-      req.flash("notice", "Please check your credentials and try again.");
+      req.flash("notice", "Invalid credentials.");
       return res.status(400).render("account/login", {
         title: "Login",
         nav,
         errors: null,
         account_email,
+        messages: req.flash("notice"),
       });
     }
   } catch (error) {
-    console.error("Error during login:", error);
+    console.error("Login error:", error);
     req.flash("notice", "Something went wrong during login.");
     res.status(500).render("account/login", { title: "Login", nav, errors: null });
   }
@@ -58,9 +61,24 @@ async function accountLogin(req, res) {
  * *************************************** */
 async function buildLogin(req, res) {
   let nav = await utilities.getNav();
+  
+  // Decode the JWT to get the logged-in user
+  const token = req.cookies.jwt;
+  let user = null;
+
+  if (token) {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+      if (!err && decoded) {
+        user = decoded; // Set user data from the token
+      }
+    });
+  }
+
   res.render("account/login", {
     title: "Login",
     nav,
+    user,  // Pass the user object to the view
+    messages: { notice: req.flash("notice") },
   });
 }
 
@@ -72,6 +90,7 @@ async function buildRegister(req, res) {
   res.render("account/register", {
     title: "Register",
     nav,
+    messages: { notice: req.flash("notice") },
   });
 }
 
@@ -92,6 +111,7 @@ async function registerAccount(req, res) {
         title: "Register",
         nav,
         errors: null,
+        messages: { notice: req.flash("notice") },
       });
     }
 
@@ -105,6 +125,7 @@ async function registerAccount(req, res) {
         title: "Registration",
         nav,
         errors: null,
+        messages: { notice: req.flash("notice") },
       });
     }
 
@@ -131,16 +152,45 @@ async function registerAccount(req, res) {
   // 🔴 Log flash messages before rendering the page
   console.log("🔍 Flash messages before render:", req.flash("notice"));
 
-  res.status(201).render("account/login", { title: "Login", nav });
+  res.status(201).render("account/login", { 
+    title: "Login", 
+    nav,
+    messages: { notice: req.flash("notice") },
+  });
 }
 
+/* ****************************************
+ *  Deliver Account Management view
+ * *************************************** */
 async function buildAccountManagement(req, res) {
   let nav = await utilities.getNav();
-  res.render("account/management", {
-    title: "Account Management",
-    nav,
-    errors: null,
-    notice: req.flash("notice"),
+
+  // Ensure you have user data from the JWT token
+  const token = req.cookies.jwt;
+  if (!token) {
+    return res.redirect('/account/login'); // Redirect to login if no token
+  }
+
+  // Decode the token
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      console.error('JWT verification error:', err);
+      return res.redirect('/account/login');
+    }
+    
+    // Log the decoded token to check its structure
+    console.log('Decoded JWT:', decoded);
+
+    // Get user data from the token
+    const user = decoded;
+
+    // Render the account management page with the user data
+    res.render("account/management", {
+      title: "Account Management",
+      nav,
+      user,  // Pass the user data to the view
+      notice: req.flash("notice"),
+    });
   });
 }
 
