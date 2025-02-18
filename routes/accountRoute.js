@@ -64,8 +64,19 @@ router.post(
         return res.redirect('/account/login');
       }
 
-      const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
-      res.cookie("jwt", accessToken, { httpOnly: true, secure: process.env.NODE_ENV !== 'development', maxAge: 3600 * 1000 });
+      // Create JWT token after successful login
+      const accessToken = jwt.sign(
+        { userId: user.account_id, email: user.account_email },  // Payload: user info (userId and email)
+        process.env.ACCESS_TOKEN_SECRET,  // Secret for signing
+        { expiresIn: '1h' }  // Token expiration (1 hour)
+      );
+
+      // Set JWT token in cookie
+      res.cookie("jwt", accessToken, { 
+        httpOnly: true,  // Ensures cookie can't be accessed via JavaScript
+        secure: process.env.NODE_ENV !== 'development',  // Only send cookie over HTTPS in production
+        maxAge: 3600 * 1000  // Set cookie expiration (1 hour)
+      });
 
       req.flash('notice', 'Logged in successfully');
       res.redirect('/account');
@@ -76,6 +87,13 @@ router.post(
     }
   })
 );
+
+// Your logout route (clear cookie and redirect)
+router.get('/logout', (req, res) => {
+  res.clearCookie('jwt');  // Clear the JWT cookie
+  req.flash("notice", "You have been logged out.");
+  res.redirect('/');
+});
 
 // Route to build the account management view
 router.get("/", utilities.checkLogin, utilities.handleErrors(accountController.buildAccountManagement));

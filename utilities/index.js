@@ -131,21 +131,28 @@ Util.handleErrors = (fn) => (req, res, next) =>
  **************************************** */
 Util.checkJWTToken = (req, res, next) => {
   const token = req.cookies.jwt;
+  
+  // If there's no token, just proceed, but user won't be logged in
   if (!token) {
-    return next();  // If no token, just proceed without setting accountData
+    res.locals.loggedin = 0;
+    return next();
   }
 
+  // If there's a token, verify it
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, accountData) {
     if (err) {
       req.flash("Please log in");
-      res.clearCookie("jwt");
+      res.clearCookie("jwt");  // Clear the cookie if the token is invalid
+      res.locals.loggedin = 0;  // Set loggedin flag to false
       return res.redirect("/account/login");
     }
+
+    // If the token is valid, store user info in locals and mark as logged in
     res.locals.accountData = accountData;
-    res.locals.loggedin = 1; // Make sure we set this flag for logged-in state
+    res.locals.loggedin = 1;
     next();
   });
-}
+};
 
 /* ****************************************
  * Check Login Middleware
@@ -157,15 +164,14 @@ Util.checkLogin = (req, res, next) => {
     req.flash("notice", "Please log in.");
     return res.redirect("/account/login");  // Redirect to login if not logged in
   }
-}
+};
 
 /* ****************************************
  * Middleware for JWT login state (check if user is logged in)
  **************************************** */
 Util.checkAccount = (req, res, next) => {
   if (res.locals.loggedin) {
-    // Optionally handle user-specific actions
-    res.locals.accountName = res.locals.accountData.username;  // Set account name for navigation
+    res.locals.accountName = res.locals.accountData.username;  // Optionally handle user-specific actions
   }
   next();
 };

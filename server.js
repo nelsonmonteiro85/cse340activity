@@ -25,10 +25,15 @@ const invCont = require('./controllers/invController');  // Correct import
 /* ***********************
  * Middleware (Order Matters!)
  *************************/
+
+// Body Parsers (Always before session handling)
 app.use(bodyParser.json()); // Parses JSON data
 app.use(bodyParser.urlencoded({ extended: true })); // Parses URL-encoded form data
 
+// Cookie Parser (Before session)
 app.use(cookieParser());
+
+// JWT Token Validation Middleware
 app.use(utilities.checkJWTToken); // Check JWT token middleware to verify if the user is logged in
 
 // Express Session Middleware (Must come before flash)
@@ -41,9 +46,20 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: true,
     saveUninitialized: true,
-    name: 'sessionId',
+    name: 'sessionId', // Session cookie name
   })
 );
+
+// Flash Middleware - Must be after session middleware
+app.use(flash());
+
+// Ensure flash messages persist across views
+app.use((req, res, next) => {
+  res.locals.messages = req.session.flash || {}; // Store flash messages
+  delete req.session.flash; // Clear flash messages after use
+  next();
+});
+
 
 // Now add flash middleware AFTER session
 app.use(flash());
