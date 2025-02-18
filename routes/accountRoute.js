@@ -1,4 +1,7 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const router = express.Router();
 const accountController = require("../controllers/accountController");
 const utilities = require("../utilities/index");
@@ -17,24 +20,21 @@ router.post(
   validate.registrationRules(),
   validate.checkRegistrationData,
   utilities.handleErrors(async (req, res) => {
-    const { email, password, username } = req.body;
+    const { account_firstname, account_lastname, account_email, account_password } = req.body;
 
-    // Check if the email is already registered
     try {
-      const existingAccount = await pool.query('SELECT * FROM account WHERE account_email = $1', [email]);
+      const existingAccount = await pool.query('SELECT * FROM account WHERE account_email = $1', [account_email]);
 
       if (existingAccount.rows.length > 0) {
-        // Email is already taken, set a flash message and redirect to the registration page
         req.flash('notice', 'Email is already registered!');
         return res.redirect('/account/register');
       }
 
-      // Proceed with account registration
-      await accountController.registerAccount(req, res);
+      const hashedPassword = await bcrypt.hash(account_password, 10);
+      await accountController.registerAccount(account_firstname, account_lastname, account_email, hashedPassword);
 
-      // Set a success flash message after account creation
-      req.flash('notice', 'Account successfully created!');
-      res.redirect('/account/login'); // Redirect to the login page after successful registration
+      req.flash('notice', 'Account successfully created! Please log in.');
+      res.redirect('/account/login');
     } catch (error) {
       console.error(error);
       req.flash('error', 'Something went wrong, please try again.');
@@ -49,33 +49,26 @@ router.post(
   validate.loginRules(),
   validate.checkLoginData,
   utilities.handleErrors(async (req, res) => {
-    const { email, password } = req.body;
-
+    const { account_email, account_password } = req.body;
     try {
-      const result = await pool.query('SELECT * FROM account WHERE account_email = $1', [email]);
-
+      const result = await pool.query('SELECT * FROM account WHERE account_email = $1', [account_email]);
       if (result.rows.length === 0) {
         req.flash('error', 'Invalid email or password');
         return res.redirect('/account/login');
       }
 
       const user = result.rows[0];
-
-      // Password validation (make sure to hash passwords in real implementation)
-      if (user.account_password !== password) {
+      const passwordMatch = await bcrypt.compare(account_password, user.account_password);
+      if (!passwordMatch) {
         req.flash('error', 'Invalid email or password');
         return res.redirect('/account/login');
       }
 
-      // Login successful - store user session
-      req.session.user = {
-        id: user.account_id,
-        email: user.account_email,
-        username: user.account_username,
-      };
+      const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+      res.cookie("jwt", accessToken, { httpOnly: true, secure: process.env.NODE_ENV !== 'development', maxAge: 3600 * 1000 });
 
       req.flash('notice', 'Logged in successfully');
-      res.redirect('/account'); // Redirect to account management page after successful login
+      res.redirect('/account');
     } catch (error) {
       console.error(error);
       req.flash('error', 'Something went wrong, please try again.');
@@ -84,7 +77,7 @@ router.post(
   })
 );
 
-// Route to build the account management view ("/account/") with checkLogin middleware
+// Route to build the account management view
 router.get("/", utilities.checkLogin, utilities.handleErrors(accountController.buildAccountManagement));
 
 module.exports = router;

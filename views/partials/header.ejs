@@ -3,9 +3,9 @@
         <a href="/" title="Return to home page">CSE Motors</a>
     </span>
     <div id="tools">
-        <% if (user && user.loggedIn) { %> 
+        <% if (user) { %> 
             <!-- Show Welcome and Logout if the user is logged in -->
-            <a title="Welcome" href="/account/management">Welcome <%= user.firstName %></a>
+            <a title="Welcome" href="/account/management">Welcome <%= user.account_firstname %></a>
             <a title="Click to log out" href="/account/logout">Logout</a>
         <% } else { %> 
             <!-- Show My Account if the user is not logged in -->

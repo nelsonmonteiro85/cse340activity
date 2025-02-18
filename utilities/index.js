@@ -1,7 +1,8 @@
-const invModel = require("../models/inventory-model")
-const Util = {}
-const jwt = require("jsonwebtoken")
-require("dotenv").config()
+const invModel = require("../models/inventory-model");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
+const Util = {};
 
 /* ************************
  * Constructs the nav HTML unordered list
@@ -96,8 +97,7 @@ Util.buildDetailView = async function (vehicle) {
  **************************************** */
 Util.buildClassificationList = async function (classification_id = null) {
   try {
-    let data = await invModel.getClassifications(); // Ensure this returns classifications
-    console.log("DEBUG: data =", data); // Check the data being returned
+    let data = await invModel.getClassifications();
     let classificationList = `
       <select name="classification_id" id="classificationList" required>
         <option value="">Choose a Classification</option>`;
@@ -127,38 +127,47 @@ Util.handleErrors = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
 /* ****************************************
-* Middleware to check token validity
-**************************************** */
+ * Middleware to check token validity
+ **************************************** */
 Util.checkJWTToken = (req, res, next) => {
-  if (req.cookies.jwt) {
-   jwt.verify(
-    req.cookies.jwt,
-    process.env.ACCESS_TOKEN_SECRET,
-    function (err, accountData) {
-     if (err) {
-      req.flash("Please log in")
-      res.clearCookie("jwt")
-      return res.redirect("/account/login")
-     }
-     res.locals.accountData = accountData
-     res.locals.loggedin = 1
-     next()
-    })
+  const token = req.cookies.jwt;
+  if (!token) {
+    return next();  // If no token, just proceed without setting accountData
+  }
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, accountData) {
+    if (err) {
+      req.flash("Please log in");
+      res.clearCookie("jwt");
+      return res.redirect("/account/login");
+    }
+    res.locals.accountData = accountData;
+    res.locals.loggedin = 1; // Make sure we set this flag for logged-in state
+    next();
+  });
+}
+
+/* ****************************************
+ * Check Login Middleware
+ **************************************** */
+Util.checkLogin = (req, res, next) => {
+  if (res.locals.loggedin) {
+    next();  // Proceed to the next middleware/route if logged in
   } else {
-   next()
+    req.flash("notice", "Please log in.");
+    return res.redirect("/account/login");  // Redirect to login if not logged in
   }
 }
 
 /* ****************************************
- *  Check Login
- * ************************************ */
-Util.checkLogin = (req, res, next) => {
+ * Middleware for JWT login state (check if user is logged in)
+ **************************************** */
+Util.checkAccount = (req, res, next) => {
   if (res.locals.loggedin) {
-    next()
-  } else {
-    req.flash("notice", "Please log in.")
-    return res.redirect("/account/login")
+    // Optionally handle user-specific actions
+    res.locals.accountName = res.locals.accountData.username;  // Set account name for navigation
   }
- }
+  next();
+};
 
 module.exports = Util;

@@ -7,9 +7,11 @@
         <%- include('../partials/header') %>
         <%- include('../partials/navigation') %>
 
-        <% if (messages && messages.notice) { %>
+        <% if (messages && messages.notice && messages.notice.length > 0) { %>
             <div class="flash-message">
-                <%= messages.notice %>
+                <% messages.notice.forEach(function(msg) { %>
+                    <p><%= msg %></p>
+                <% }) %>
             </div>
         <% } %>
 

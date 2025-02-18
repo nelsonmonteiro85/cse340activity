@@ -29,7 +29,7 @@ app.use(bodyParser.json()); // Parses JSON data
 app.use(bodyParser.urlencoded({ extended: true })); // Parses URL-encoded form data
 
 app.use(cookieParser());
-app.use(utilities.checkJWTToken);
+app.use(utilities.checkJWTToken); // Check JWT token middleware to verify if the user is logged in
 
 // Express Session Middleware (Must come before flash)
 app.use(
@@ -59,12 +59,12 @@ app.use((req, res, next) => {
  * Middleware to Provide Navigation to All Views
  *************************/
 app.use(async (req, res, next) => {
-  res.locals.nav = await utilities.getNav();
+  res.locals.nav = await utilities.getNav(req); // Pass req to getNav to handle logged-in state
   next();
 });
 
 app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
+  res.locals.user = req.session.user || null; // Store user session if exists
   next();
 });
 

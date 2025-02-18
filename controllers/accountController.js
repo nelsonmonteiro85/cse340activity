@@ -13,7 +13,7 @@ async function accountLogin(req, res) {
 
   try {
     const accountData = await accountModel.getAccountByEmail(account_email);
-    console.log("Account Data Retrieved:", accountData);  // Debugging log
+    console.log("Account Data Retrieved:", accountData);
 
     if (!accountData) {
       req.flash("notice", "Please check your credentials and try again.");
@@ -27,18 +27,22 @@ async function accountLogin(req, res) {
     }
 
     if (await bcrypt.compare(account_password, accountData.account_password)) {
-      // Login successful, generate JWT token and set cookies
-      const accessToken = jwt.sign(accountData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
-      console.log("Generated Access Token:", accessToken);  // Debugging log
+      const tokenPayload = {
+        account_id: accountData.account_id,
+        account_email: accountData.account_email,
+        account_type: accountData.account_type
+      };
+      
+      const accessToken = jwt.sign(tokenPayload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+      console.log("Generated Access Token:", accessToken);
 
-      // Set token as a cookie
-      const cookieOptions = process.env.NODE_ENV === 'development' ? 
-        { httpOnly: true, maxAge: 3600 * 1000 } : 
-        { httpOnly: true, secure: true, maxAge: 3600 * 1000 };
+      const cookieOptions = process.env.NODE_ENV === 'production' ? 
+        { httpOnly: true, secure: true, maxAge: 3600 * 1000 } : 
+        { httpOnly: true, maxAge: 3600 * 1000 };
 
       res.cookie("jwt", accessToken, cookieOptions);
       console.log('Redirecting to account management...');
-      return res.redirect("/account/management");  // Ensure this route is correct for Account Management page
+      return res.redirect("/account/management");
     } else {
       req.flash("notice", "Invalid credentials.");
       return res.status(400).render("account/login", {
@@ -61,23 +65,9 @@ async function accountLogin(req, res) {
  * *************************************** */
 async function buildLogin(req, res) {
   let nav = await utilities.getNav();
-  
-  // Decode the JWT to get the logged-in user
-  const token = req.cookies.jwt;
-  let user = null;
-
-  if (token) {
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-      if (!err && decoded) {
-        user = decoded; // Set user data from the token
-      }
-    });
-  }
-
   res.render("account/login", {
     title: "Login",
     nav,
-    user,  // Pass the user object to the view
     messages: { notice: req.flash("notice") },
   });
 }
@@ -98,12 +88,11 @@ async function buildRegister(req, res) {
  *  Process Registration
  * *************************************** */
 async function registerAccount(req, res) {
-  console.log("✅ Received registration request:", req.body); // Debugging log
+  console.log("✅ Received registration request:", req.body);
   let nav = await utilities.getNav();
   const { account_firstname, account_lastname, account_email, account_password } = req.body;
 
   try {
-    // Check if email already exists
     const existingEmail = await accountModel.checkExistingEmail(account_email);
     if (existingEmail) {
       req.flash("notice", "This email is already registered.");
@@ -115,26 +104,13 @@ async function registerAccount(req, res) {
       });
     }
 
-    // Hash the password before storing
-    let hashedPassword;
-    try {
-      hashedPassword = await bcrypt.hash(account_password, 10); // 10 is the salt rounds
-    } catch (error) {
-      req.flash("notice", "Sorry, there was an error processing the registration.");
-      return res.status(500).render("account/register", {
-        title: "Registration",
-        nav,
-        errors: null,
-        messages: { notice: req.flash("notice") },
-      });
-    }
-
-    // Register the new account
+    const hashedPassword = await bcrypt.hash(account_password, 10);
+    
     const regResult = await accountModel.registerAccount(
       account_firstname,
       account_lastname,
       account_email,
-      hashedPassword // Use hashedPassword instead of plain account_password
+      hashedPassword
     );
 
     if (regResult) {
@@ -149,7 +125,6 @@ async function registerAccount(req, res) {
     req.flash("notice", "An error occurred during registration. Please try again.");
   }
 
-  // 🔴 Log flash messages before rendering the page
   console.log("🔍 Flash messages before render:", req.flash("notice"));
 
   res.status(201).render("account/login", { 
@@ -164,34 +139,33 @@ async function registerAccount(req, res) {
  * *************************************** */
 async function buildAccountManagement(req, res) {
   let nav = await utilities.getNav();
-
-  // Ensure you have user data from the JWT token
   const token = req.cookies.jwt;
   if (!token) {
-    return res.redirect('/account/login'); // Redirect to login if no token
+    return res.redirect('/account/login');
   }
 
-  // Decode the token
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      console.error('JWT verification error:', err);
-      return res.redirect('/account/login');
-    }
-    
-    // Log the decoded token to check its structure
-    console.log('Decoded JWT:', decoded);
-
-    // Get user data from the token
-    const user = decoded;
-
-    // Render the account management page with the user data
+  try {
+    const user = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    console.log('Decoded JWT:', user);
     res.render("account/management", {
       title: "Account Management",
       nav,
-      user,  // Pass the user data to the view
+      user,
       notice: req.flash("notice"),
     });
-  });
+  } catch (err) {
+    console.error('JWT verification error:', err);
+    return res.redirect('/account/login');
+  }
 }
 
-module.exports = { buildLogin, buildRegister, registerAccount, accountLogin, buildAccountManagement };
+/* ****************************************
+ *  Process Logout
+ * *************************************** */
+async function logout(req, res) {
+  res.clearCookie("jwt");
+  req.flash("notice", "You have been logged out successfully.");
+  res.redirect("/account/login");
+}
+
+module.exports = { buildLogin, buildRegister, registerAccount, accountLogin, buildAccountManagement, logout };
