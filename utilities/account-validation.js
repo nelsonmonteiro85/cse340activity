@@ -116,4 +116,77 @@ validate.checkLoginData = async (req, res, next) => {
   next();
 };
 
+/* ***********************************
+ *  Update Account Data Validation Rules
+ * ********************************* */
+validate.updateRules = () => {
+  return [
+    body('account_firstname').trim().notEmpty().withMessage('First name is required'),
+    body('account_lastname').trim().notEmpty().withMessage('Last name is required'),
+    body('account_email').trim().notEmpty().withMessage('Email is required').isEmail().withMessage('Invalid email format')
+      .custom(async (account_email, {req}) => { //check if the email is already in use by another account
+          const existingAccount = await accountModel.getAccountByEmail(account_email);
+          if (existingAccount && existingAccount.account_id != req.body.account_id) {
+              throw new Error('Email already in use by another account!');
+          }
+      }),
+  ];
+};
+
+validate.checkUpdateData = async (req, res, next) => {
+    const { account_id, account_firstname, account_lastname, account_email } = req.body;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      const messages = errors.array().map(error => error.msg);
+      let nav = await utilities.getNav();
+      const userResult = await pool.query('SELECT * FROM account WHERE account_id = $1', [account_id]);
+      const user = userResult.rows[0];
+
+      return res.render("account/edit", {
+        title: "Edit Account",
+        nav,
+        user: user,
+        errors: messages,
+        messages: req.flash(),
+      });
+    }
+    next();
+};
+
+/* ***********************************
+ *  Change Password Validation Rules
+ * ********************************* */
+validate.passwordRules = () => {
+  return [
+    body('account_password')
+      .trim()
+      .isLength({ min: 12 })
+      .withMessage('Password must be at least 12 characters long')
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/)
+      .withMessage('Password must contain at least 1 uppercase character, 1 lowercase character, 1 number, and 1 special character'),
+  ];
+};
+
+validate.checkPasswordData = async (req, res, next) => {
+  const { account_id, account_password } = req.body;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    const messages = errors.array().map(error => error.msg);
+    let nav = await utilities.getNav();
+    const userResult = await pool.query('SELECT * FROM account WHERE account_id = $1', [account_id]);
+    const user = userResult.rows[0];
+
+    return res.render("account/edit", {
+      title: "Edit Account",
+      nav,
+      user: user,
+      errors: messages,
+      messages: req.flash(),
+    });
+  }
+  next();
+};
+
 module.exports = validate;

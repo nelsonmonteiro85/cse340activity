@@ -1,25 +1,27 @@
+<!-- In account/management.ejs -->
 <% include("../partials/header.ejs") %>
 
 <h1>Account Management</h1>
 
-<!-- Displaying User Information -->
 <% if (user) { %>
   <h2>Welcome, <%= user.account_firstname %>!</h2>
-  <p>You are logged in.</p>
-  <a href="/account/edit">Edit account information</a>
+  <a href="/account/edit/<%= user.account_id %>">Update account information</a>
+
+  <% if (user.account_type === 'Employee' || user.account_type === 'Admin') { %>
+    <h3>Inventory Management</h3>
+    <p><a href="/inv/management">Manage Inventory</a></p>
+  <% } %>
+
 <% } else { %>
   <p>You are not logged in. Please <a href="/account/login">login</a> first.</p>
 <% } %>
 
-<!-- Display Notices or Messages -->
-<% if (Array.isArray(notice) && notice.length > 0) { %>
-  <div class="messages">
-    <% notice.forEach(msg => { %>
-      <p><%= msg %></p>
-    <% }) %>
-  </div>
-<% } else if (notice) { %>
-  <p><%= notice %></p>
+<% if (typeof messages !== "undefined" && messages.notice) { %>
+  <div class="notice"><%= messages.notice %></div>
+<% } %>
+
+<% if (typeof messages !== "undefined" && messages.error) { %>
+  <div class="error"><%= messages.error %></div>
 <% } %>
 
 <% include("../partials/footer.ejs") %>

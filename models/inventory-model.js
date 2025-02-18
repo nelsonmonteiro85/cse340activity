@@ -4,9 +4,14 @@ const pool = require("../database/");
  *  Get all classification data
  * ************************** */
 async function getClassifications() {
-  const result = await pool.query("SELECT * FROM public.classification ORDER BY classification_name");
-  console.log("DEBUG: classifications data =", result.rows); // Log the result rows
-  return result.rows;
+  try {
+    const result = await pool.query("SELECT * FROM public.classification ORDER BY classification_name");
+    console.log("DEBUG: classifications data =", result.rows); // Log the result rows
+    return result.rows;
+  } catch (error) {
+    console.error("getClassifications error: " + error);
+    throw error; // Propagate the error to be handled by the controller
+  }
 }
 
 /* ***************************
@@ -24,6 +29,7 @@ async function getInventoryByClassificationId(classification_id) {
     return data.rows;
   } catch (error) {
     console.error("getInventoryByClassificationId error: " + error);
+    throw error; // Propagate the error to be handled by the controller
   }
 }
 
@@ -39,6 +45,7 @@ async function getInventoryById(inv_id) {
     return data.rows;
   } catch (error) {
     console.error("getInventoryById error: " + error);
+    throw error; // Propagate the error to be handled by the controller
   }
 }
 
@@ -47,20 +54,19 @@ async function getInventoryById(inv_id) {
  * ************************** */
 async function addClassification(classification_name) {
   try {
-      const sql = "INSERT INTO public.classification (classification_name) VALUES ($1) RETURNING *";
-      const data = [classification_name];
-      const result = await pool.query(sql, data);
+    const sql = "INSERT INTO public.classification (classification_name) VALUES ($1) RETURNING *";
+    const data = [classification_name];
+    const result = await pool.query(sql, data);
 
-      if (result.rows.length > 0) {  // Check if any rows were inserted
-          return result.rows[0]; // Return the newly inserted classification data
-      } else {
-          console.error("No rows were inserted in addClassification");
-          return null; // Or throw an error if you prefer
-      }
-
+    if (result.rows.length > 0) {
+      return result.rows[0]; // Return the newly inserted classification data
+    } else {
+      console.error("No rows were inserted in addClassification");
+      throw new Error("Failed to add classification.");
+    }
   } catch (error) {
-      console.error("addClassification error: " + error);
-      throw error; // Propagate the error to be handled by the controller
+    console.error("addClassification error: " + error);
+    throw error; // Propagate the error to be handled by the controller
   }
 }
 
@@ -69,18 +75,27 @@ async function addClassification(classification_name) {
  * ************************** */
 async function deleteClassification(classification_id) {
   try {
+    // First, check if there are any inventory items related to this classification
+    const inventoryCheck = await pool.query(
+      "SELECT * FROM public.inventory WHERE classification_id = $1 LIMIT 1",
+      [classification_id]
+    );
+
+    if (inventoryCheck.rows.length > 0) {
+      // If there are inventory items, we may need to either delete them first or handle the constraint
+      throw new Error('Cannot delete classification: There are inventory items associated with it.');
+    }
+
     const result = await pool.query(
       "DELETE FROM public.classification WHERE classification_id = $1 RETURNING classification_name",
       [classification_id]
     );
 
-    // If no rows were affected, it means the classification doesn't exist
     if (result.rowCount === 0) {
       throw new Error('Classification not found');
     }
 
-    // Return the name of the deleted classification
-    return result.rows[0];
+    return result.rows[0]; // Return the name of the deleted classification
   } catch (error) {
     console.error("deleteClassification error: " + error);
     throw error; // Propagate the error to be handled by the controller

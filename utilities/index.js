@@ -1,6 +1,7 @@
 const invModel = require("../models/inventory-model");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const pool = require('../database');
 
 const Util = {};
 
@@ -129,26 +130,24 @@ Util.handleErrors = (fn) => (req, res, next) =>
 /* ****************************************
  * Middleware to check token validity
  **************************************** */
+// In utilities/index.js
 Util.checkJWTToken = (req, res, next) => {
   const token = req.cookies.jwt;
   
-  // If there's no token, just proceed, but user won't be logged in
   if (!token) {
     res.locals.loggedin = 0;
     return next();
   }
 
-  // If there's a token, verify it
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, accountData) {
     if (err) {
-      req.flash("Please log in");
+      req.flash("error", "Please log in");
       res.clearCookie("jwt");  // Clear the cookie if the token is invalid
-      res.locals.loggedin = 0;  // Set loggedin flag to false
+      res.locals.loggedin = 0;
       return res.redirect("/account/login");
     }
 
-    // If the token is valid, store user info in locals and mark as logged in
-    res.locals.accountData = accountData;
+    res.locals.accountData = accountData;  // Store the decoded user info here
     res.locals.loggedin = 1;
     next();
   });
@@ -157,14 +156,32 @@ Util.checkJWTToken = (req, res, next) => {
 /* ****************************************
  * Check Login Middleware
  **************************************** */
-Util.checkLogin = (req, res, next) => {
-  if (res.locals.loggedin) {
-    next();  // Proceed to the next middleware/route if logged in
+Util.checkLogin = async (req, res, next) => {
+  if (req.cookies.jwt) {
+      try {
+          const decodedToken = jwt.verify(req.cookies.jwt, process.env.ACCESS_TOKEN_SECRET);
+          const userResult = await pool.query('SELECT * FROM account WHERE account_id = $1', [decodedToken.account_id]);
+          const user = userResult.rows[0];
+
+          if (user) {
+              res.locals.loggedin = true; // Set loggedin to true
+              res.locals.user = user; // Pass the user object
+              next();
+          } else {
+              res.clearCookie('jwt');
+              res.redirect('/account/login');
+          }
+
+      } catch (error) {
+          console.error("JWT verification error:", error);
+          res.clearCookie('jwt');
+          res.redirect('/account/login');
+      }
   } else {
-    req.flash("notice", "Please log in.");
-    return res.redirect("/account/login");  // Redirect to login if not logged in
+      res.locals.loggedin = false; // Set loggedin to false
+      next();
   }
-};
+}
 
 /* ****************************************
  * Middleware for JWT login state (check if user is logged in)
@@ -174,6 +191,17 @@ Util.checkAccount = (req, res, next) => {
     res.locals.accountName = res.locals.accountData.username;  // Optionally handle user-specific actions
   }
   next();
+};
+
+/* ****************************************
+ * Check Employee
+ **************************************** */
+Util.checkEmployee = (req, res, next) => {
+  if (res.locals.loggedin && (res.locals.accountData.account_type === 'Employee' || res.locals.accountData.account_type === 'Admin')) {
+    return next();  // Proceed to the next route or middleware
+  }
+  req.flash("error", "You are not authorized to access this page.");
+  res.redirect("/account");  // Or wherever you want to redirect unauthorized users
 };
 
 module.exports = Util;

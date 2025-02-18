@@ -1,65 +1,140 @@
 <section class="management-container">
     <h1>Vehicle Management</h1>
 
-    <% if (messages && messages.success && messages.success.length > 0) { %>
+    <% if (messages && messages.success && messages.success.length> 0) { %>
         <ul class="alert alert-success">
             <% messages.success.forEach(function(message) { %>
-                <li><%= message %></li>
-            <% }); %>
+                <li>
+                    <%= message %>
+                </li>
+                <% }); %>
         </ul>
-    <% } %>
+        <% } %>
 
-    <% if (messages && messages.error && messages.error.length > 0) { %>
-        <ul class="alert alert-danger">
-            <% messages.error.forEach(function(message) { %>
-                <li><%= message %></li>
-            <% }); %>
-        </ul>
-    <% } %>
+            <% if (messages && messages.error && messages.error.length> 0) { %>
+                <ul class="alert alert-danger">
+                    <% messages.error.forEach(function(message) { %>
+                        <li>
+                            <%= message %>
+                        </li>
+                        <% }); %>
+                </ul>
+                <% } %>
 
-    <div class="action-links">
-        <p><a href="/inv/add-classification" class="button-link">Add New Classification</a></p>
-        <p><a href="/inv/add-inventory" class="button-link">Add New Vehicle</a></p>
-    </div>
+                    <div class="action-links">
+                        <p><a href="/inv/add-classification" class="button-link">Add New Classification</a></p>
+                        <p><a href="/inv/add-inventory" class="button-link">Add New Vehicle</a></p>
+                    </div>
 
-    <!-- Manage Inventory Section -->
-    <h2>Manage Inventory</h2>
-    <p>Select a classification from the list to see the items belonging to that classification.</p>
+                    <!-- Manage Inventory Section -->
+                    <h2>Manage Inventory</h2>
+                    <p>Select a classification from the list to see the items belonging to that classification.</p>
 
-    <!-- Classification List -->
-    <div>
-        <select id="classificationSelect" class="form-control">
-            <option value="">-- Select Classification --</option>
-            <% classifications.forEach(function(classification) { %>
-                <option value="<%= classification.classification_id %>">
-                    <%= classification.classification_name %>
-                </option>
-            <% }); %>
-        </select>
-    </div>
+                    <!-- Classification List -->
+                    <div>
+                        <select id="classificationSelect" class="form-control">
+                            <option value="">-- Select Classification --</option>
+                            <% classifications.forEach(function(classification) { %>
+                                <option value="<%= classification.classification_id %>">
+                                    <%= classification.classification_name %>
+                                </option>
+                                <% }); %>
+                        </select>
+                        <button id="deleteClassificationBtn" class="btn btn-danger" style="display:none;">Delete
+                            Classification</button>
+                    </div>
 
-    <!-- Inventory Table Section -->
-    <div class="inventory-table-section">
-        <table id="inventoryDisplay" class="inventory-table">
-            <thead>
-                <tr>
-                    <th>Make</th>
-                    <th>Model</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Placeholder row until a classification is selected -->
-                <tr>
-                    <td colspan="3">Please select a classification to see vehicles.</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>    
+                    <!-- Inventory Table Section -->
+                    <div class="inventory-table-section">
+                        <table id="inventoryDisplay" class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th>Make</th>
+                                    <th>Model</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="3">Please select a classification to see vehicles.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-    <!-- No JavaScript Message -->
-    <noscript>JavaScript must be enabled to use this page.</noscript>
+                    <!-- No JavaScript Message -->
+                    <noscript>JavaScript must be enabled to use this page.</noscript>
 </section>
 
-<!-- Include JavaScript file for handling dynamic inventory display -->
 <script src="/js/inventory.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const classificationSelect = document.getElementById('classificationSelect');
+        const inventoryTable = document.getElementById('inventoryDisplay');
+        const deleteClassificationBtn = document.getElementById('deleteClassificationBtn');
+
+        // Handle classification selection
+        classificationSelect.addEventListener('change', function () {
+            const selectedClassificationId = classificationSelect.value;
+
+            if (!selectedClassificationId) {
+                inventoryTable.querySelector('tbody').innerHTML = '<tr><td colspan="3">Please select a classification to see vehicles.</td></tr>';
+                deleteClassificationBtn.style.display = 'none';
+            } else {
+                fetch(`/inventory/classification/${selectedClassificationId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.inventory && data.inventory.length > 0) {
+                            let rows = '';
+                            data.inventory.forEach(item => {
+                                rows += `
+                                    <tr>
+                                        <td>${item.make}</td>
+                                        <td>${item.model}</td>
+                                        <td><button class="btn btn-info">View</button></td>
+                                    </tr>
+                                `;
+                            });
+                            inventoryTable.querySelector('tbody').innerHTML = rows;
+                        } else {
+                            inventoryTable.querySelector('tbody').innerHTML = '<tr><td colspan="3">No vehicles found for this classification.</td></tr>';
+                        }
+                    })
+                    .catch(() => {
+                        inventoryTable.querySelector('tbody').innerHTML = '<tr><td colspan="3">Error fetching data.</td></tr>';
+                    });
+
+                deleteClassificationBtn.style.display = 'inline-block';
+            }
+        });
+
+        // Handle classification deletion
+        deleteClassificationBtn.addEventListener('click', function () {
+            const selectedClassificationId = classificationSelect.value;
+
+            if (confirm('Are you sure you want to delete this classification? This action cannot be undone.')) {
+                fetch(`/inventory/remove-classification/${selectedClassificationId}`, {
+                    method: 'DELETE',  // Changed to DELETE method for RESTful pattern
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Include CSRF token if you're using it
+                        'csrf-token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ classification_id: selectedClassificationId })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Classification deleted successfully');
+                            location.reload(); // Refresh the page to reflect the changes
+                        } else {
+                            alert('Error deleting classification');
+                        }
+                    })
+                    .catch(() => {
+                        alert('An error occurred while deleting the classification');
+                    });
+            }
+        });
+    });
+</script>

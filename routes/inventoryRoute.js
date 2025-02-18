@@ -1,6 +1,6 @@
 const express = require("express");
 const router = new express.Router();
-const invController = require("../controllers/invController"); // Use the correct controller name
+const invController = require("../controllers/invController");
 const utilities = require("../utilities/index");
 
 // Route to build inventory by classification view
@@ -36,8 +36,8 @@ router.use((err, req, res, next) => {
     res.redirect("/inv/management");
 });
 
-// Route to remove a classification (Make sure to use the correct function here)
-router.get('/remove-classification/:id', invController.removeClassification);
+// Route to remove a classification - updated to use DELETE method
+router.delete('/remove-classification/:id', invController.removeClassification);
 
 // Route to fetch inventory items based on classification ID
 router.get("/getInventory/:classification_id", utilities.handleErrors(invController.getInventoryJSON));
