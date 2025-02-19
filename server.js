@@ -21,6 +21,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const flash = require("connect-flash");
 const invCont = require('./controllers/invController');  // Correct import
+const feedbackRoutes = require("./routes/feedbackRoutes"); // Import the feedback routes
 
 /* ***********************
  * Middleware (Order Matters!)
@@ -50,9 +51,6 @@ app.use(
   })
 );
 
-// Flash Middleware - Must be after session middleware
-app.use(flash());
-
 // Ensure flash messages persist across views
 app.use((req, res, next) => {
   res.locals.messages = req.session.flash || {}; // Store flash messages
@@ -60,8 +58,7 @@ app.use((req, res, next) => {
   next();
 });
 
-
-// Now add flash middleware AFTER session
+// Flash middleware AFTER session
 app.use(flash());
 
 /* Ensure flash messages persist across views */
@@ -112,6 +109,9 @@ app.use("/", errorRoute);
 
 const accountRoute = require("./routes/accountRoute"); // Move account route handling here
 app.use("/account", accountRoute);
+
+// Add feedback routes here
+app.use(feedbackRoutes); // Feedback route
 
 // File Not Found Route - must be last route in list
 app.use(async (req, res, next) => {

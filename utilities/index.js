@@ -10,7 +10,7 @@ const Util = {};
  ************************** */
 Util.getNav = async function () {
   try {
-    let data = await invModel.getClassifications(); // Retrieve classification data
+    let data = await invModel.getClassifications();
     let list = "<ul>";
 
     // Home link
@@ -18,6 +18,9 @@ Util.getNav = async function () {
 
     // "New Car" link
     list += '<li><a href="/inv/management" title="Manage Inventory">Management</a></li>';
+
+    // "Feedback" link
+    list += '<li><a href="/feedback" title="Give Feedback">Feedback</a></li>';
 
     // Dynamically add classifications
     data.forEach((row) => {

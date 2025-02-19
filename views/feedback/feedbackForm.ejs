@@ -1,0 +1,30 @@
+<section id="feedback">
+    <h1 class="form-title">Submit Feedback</h1>
+
+    <!-- Display Success Message -->
+    <% if (messages.success) { %>
+        <% messages.success.forEach(function(msg) { %>
+            <div class="flash-message success"><%= msg %></div>
+        <% }) %>
+    <% } %>
+
+    <!-- Display Error Message -->
+    <% if (messages.error) { %>
+        <% messages.error.forEach(function(msg) { %>
+            <div class="flash-message error"><%= msg %></div>
+        <% }) %>
+    <% } %>
+
+    <form action="/feedback" method="POST" class="feedback-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required value="<%= locals.name || '' %>">
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required value="<%= locals.email || '' %>">
+
+        <label for="feedback_text">Your Feedback:</label>
+        <textarea id="feedback_text" name="feedback_text" required></textarea>
+
+        <button type="submit" class="feedback-btn">Submit</button>
+    </form>
+</section>
